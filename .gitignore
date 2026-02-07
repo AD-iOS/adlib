@@ -1,0 +1,11 @@
+.DS_Store
+Terminal
+Thumbs.db
+desktop.ini
+*.tmp
+update.sh
+*.sh
+c++/*
+liballs.md
+.idea
+.git-pr
