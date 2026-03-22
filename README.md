@@ -1,7 +1,7 @@
 # adlib
 
-> author: AD <ad-ios334@outlook.com>
-> maintenance: AD <ad-ios334@outlook.com>
+> author: AD <ad-ios334@outlook.com>    
+> maintenance: AD <ad-ios334@outlook.com>    
 > version: 1.0
 
 ### AD 的 C++庫
