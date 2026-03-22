@@ -58,8 +58,37 @@
 #include "fix_std.hpp"
 #include "adlibcxx-makeupforit.hpp"
 
-#ifdef ad_rm
-    #include "_rm_.hpp"
+#ifdef ad_all
+    #define ad_fs
+    #define ad_archive
+    #define ad_other
+    #define ad_user
+    #define ad_filename
+    #define ad_write
+    #define ad_time
+    #define ad_string
+    #define ad_read
+    #define load_ad_null
+    #define ad_func
+    #define ad_file
+    #define ad_system
+    #define ad_io
+    #define ad_rm
+    #define ad_cli
+#endif
+
+#if defined(ad_commonly_used) || defined(ad_comuse)
+    #define ad_fs
+    #define ad_user
+    #define ad_filename
+    #define ad_write
+    #define ad_time
+    #define ad_string
+    #define ad_read
+    #define load_ad_null
+    #define ad_file
+    #define ad_io
+    #define ad_rm
 #endif
 
 #if defined(ad_io_use_std) && (defined(ad_output) || defined(ad_io))
@@ -71,6 +100,44 @@
 #elif defined(ad_output) || defined(ad_io)
     #define __ad_use_ad_io
     #include "AD_output.hpp"
+#endif
+
+#ifdef ad_all
+    #include "AD_func.hpp"
+    #include "AD_null.hpp"
+    #include "AD_string.hpp"
+    #include "AD_time.hpp"
+    #include "AD_user.hpp"
+    #include "_archive.hpp"
+    #include "_archive_gzip.hpp"
+    #include "_chown.hpp"
+    #include "_file.hpp"
+    #include "_filename.hpp"
+    #include "_read.hpp"
+    #include "_rm_.hpp"
+    #include "_write.hpp"
+    #include "ad_system.hpp"
+    #include <archive.h>
+    #include <archive_entry.h>
+    #include "ad_cli.hpp"
+#endif
+
+#if defined(ad_commonly_used) || defined(ad_comuse)
+    #include "AD_func.hpp"
+    #include "AD_null.hpp"
+    #include "AD_string.hpp"
+    #include "AD_time.hpp"
+    #include "AD_user.hpp"
+    #include "_chown.hpp"
+    #include "_file.hpp"
+    #include "_filename.hpp"
+    #include "_read.hpp"
+    #include "_rm_.hpp"
+    #include "_write.hpp"
+#endif
+
+#ifdef ad_rm
+    #include "_rm_.hpp"
 #endif
 
 #ifdef ad_system
@@ -145,72 +212,6 @@
     #include "_filename.hpp"
     #include "_archive.hpp"
 #endif
-
-#ifdef ad_all
-    #define ad_fs
-    #define ad_archive
-    #define ad_other
-    #define ad_user
-    #define ad_filename
-    #define ad_write
-    #define ad_time
-    #define ad_string
-    #define ad_read
-    #define load_ad_null
-    #define ad_func
-    #define ad_file
-    #define ad_system
-    #define ad_io
-    #define ad_rm
-    #define ad_cli
-
-    #include "AD_func.hpp"
-    #include "AD_null.hpp"
-    #include "AD_output.hpp"
-    #include "AD_string.hpp"
-    #include "AD_time.hpp"
-    #include "AD_user.hpp"
-    #include "_archive.hpp"
-    #include "_archive_gzip.hpp"
-    #include "_chown.hpp"
-    #include "_file.hpp"
-    #include "_filename.hpp"
-    #include "_read.hpp"
-    #include "_rm_.hpp"
-    #include "_write.hpp"
-    #include "ad_system.hpp"
-    #include <archive.h>
-    #include <archive_entry.h>
-    #include "ad_cli.hpp"
-#endif
-
-#if defined(ad_commonly_used) || defined(ad_comuse)
-    #define ad_fs
-    #define ad_user
-    #define ad_filename
-    #define ad_write
-    #define ad_time
-    #define ad_string
-    #define ad_read
-    #define load_ad_null
-    #define ad_file
-    #define ad_io
-    #define ad_rm
-
-    #include "AD_func.hpp"
-    #include "AD_null.hpp"
-    #include "AD_output.hpp"
-    #include "AD_string.hpp"
-    #include "AD_time.hpp"
-    #include "AD_user.hpp"
-    #include "_chown.hpp"
-    #include "_file.hpp"
-    #include "_filename.hpp"
-    #include "_read.hpp"
-    #include "_rm_.hpp"
-    #include "_write.hpp"
-#endif
-
 
 /* Added by AD Time: 23:32/12/1/26 */
 namespace AD {

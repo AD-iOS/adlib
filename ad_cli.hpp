@@ -158,8 +158,13 @@ namespace AD {
         /* added by AD time: 2026-3-20:19:14 */
         // 無參數版本, 用於向後兼容
         inline void __getinput() { /* 什麼都不做 */ }
+        /* added by AD time: 2026-3-22:13:20 */
+        template<typename... Args>
+        inline void require(Args&&... args) {
+            __getinput(std::forward<Args>(args)...);
+        }
 
-        inline constexpr auto& require = __getonput;
+        // inline constexpr auto& require = __getinput;
         
     } // namespace cli
 } // namespace AD
