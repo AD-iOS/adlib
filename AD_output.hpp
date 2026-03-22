@@ -1,9 +1,9 @@
 /*    AD-DEV Public General License
  *       Version 1.0.0, December 2025
  *
- *  Copyright (c) 2025-2026 AD-iOS (1107154510@qq.com) All rights reserved.
+ *  Copyright (c) 2025-2026 AD-iOS (ad-ios334@outlook.com) All rights reserved.
  *
- *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios@qq.com)
+ *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios334@outlook.com)
  *
  *  Hereinafter, the AD-DEV Public General License is referred to as this Agreement or this License. The original source code, executable binaries, and related documentation are collectively referred to as the Software. Use for profit, including sales, leasing, advertising support, etc., is referred to as Commercial Use. Works modified or extended based on the Software are referred to as Derivative Products.
  *
@@ -42,6 +42,7 @@
 #ifndef _AD_output_HPP_
 #define _AD_output_HPP_
 
+#ifdef __ad_use_ad_io
 #include <string>
 #include <cstdio>
 #if defined(_WIN32) || defined(_WIN64)
@@ -54,6 +55,9 @@
 #include <cfloat>
 #include <cmath>
 #include <cstdarg>
+#include <memory>
+#include <mutex>
+#include <unordered_map>
 
 namespace AD {
 
@@ -116,58 +120,68 @@ public:
 
 // 2. 修改 basic_ostream 类,添加格式控制
 class basic_ostream {
-protected:
-    static const unsigned int BUFFER_SIZE = 1024;
-    char buffer[BUFFER_SIZE];
+private:
+    static const unsigned int BUFFER_SIZE = 16384;
+    alignas(16) char buffer[BUFFER_SIZE];
     unsigned int pos = 0;
-    bool valid = true;
     int fd;
-    
-    // 添加格式控制成员
+    bool valid = true;
     output_format format;
-    
-    basic_ostream(int file_descriptor) : fd(file_descriptor) {}
-    
-    void flush_impl() {
-        if (pos > 0 && valid) {
-            unsigned long count = pos;
-            #if defined(__aarch64__) || defined(__arm64__) || defined(__APPLE__)
+    // 添加靜態標誌來確保每個文件描述符只刷新一次
+    static std::unordered_map<int, bool>& get_flushed_flag() {
+        static std::unordered_map<int, bool> flags;
+        return flags;
+    }
+public:
+    basic_ostream(int file_descriptor) : fd(file_descriptor), pos(0), valid(true) {
+        // 初始化緩衝區(可選)
+    }
+    inline void flush_impl() {
+        if (pos > 0) {
+            #if (defined(__aarch64__) || defined(__arm64__)) && defined(__APPLE__)
+                register long x0 asm("x0") = fd;
+                register const char* x1 asm("x1") = buffer;
+                register long x2 asm("x2") = pos;
+                register long x16 asm("x16") = 4;
+                
                 __asm__ __volatile__(
-                    "mov x0, %0\n"
-                    "mov x1, %1\n"
-                    "mov x2, %2\n"
-                    "mov x16, #4\n"
                     "svc #0x80\n"
-                    :
-                    : "r"((long)fd), "r"(buffer), "r"(count)
-                    : "x0", "x1", "x2", "x16", "memory", "cc"
+                    : "+r"(x0), "+r"(x1), "+r"(x2)
+                    : "r"(x16)
+                    : "memory", "cc"
                 );
+                /*
+                // 處理部分寫入
+                if (x2 > 0) {
+                    memmove(buffer, buffer + (pos - x2), x2);
+                    pos = x2;
+                } else {
+                    pos = 0;
+                }
+                */
+                pos = 0;
             #else
-                ssize_t result = write(fd, buffer, count);
-                // ssize_t result = write(fd, buffer, count);
-                (void)result;
+                ssize_t written = write(fd, buffer, pos);
+                pos = 0;
             #endif
-            pos = 0;
         }
     }
     
-    void direct_write(const char* str, unsigned int len) {
-        unsigned long length = len;
-        #if defined(__aarch64__) || defined(__arm64__) || defined(__APPLE__)
+    inline void direct_write(const char* str, unsigned int len) {
+        #if (defined(__aarch64__) || defined(__arm64__)) && defined(__APPLE__)
+            register long x0 asm("x0") = fd;
+            register const char* x1 asm("x1") = str;
+            register long x2 asm("x2") = len;
+            register long x16 asm("x16") = 4;
+            
             __asm__ __volatile__(
-                "mov x0, %0\n"
-                "mov x1, %1\n"
-                "mov x2, %2\n"
-                "mov x16, #4\n"
                 "svc #0x80\n"
-                :
-                : "r"((long)fd), "r"(str), "r"(length)
-                : "x0", "x1", "x2", "x16", "memory", "cc"
+                : "+r"(x0), "+r"(x1), "+r"(x2)
+                : "r"(x16)
+                : "memory", "cc"
             );
         #else
-            ssize_t result = write(fd, str, len); // 4
-            // ssize_t result = write(fd, buffer, count);
-            (void)result;
+            write(fd, str, len);
         #endif
     }
     
@@ -414,7 +428,18 @@ public:
             valid = false;
         }
     }
-    
+/*
+    ~basic_ostream() {
+        if (valid && pos > 0) {
+            auto& flushed = get_flushed_flag();
+            if (!flushed[fd]) {
+                flush_impl();
+                flushed[fd] = true;
+            }
+        }
+        valid = false;
+    }
+*/
     // 获取格式控制对象
     output_format& fmt() { return format; }
     const output_format& fmt() const { return format; }
@@ -450,6 +475,7 @@ public:
     
     basic_ostream& flush() {
         flush_impl();
+        get_flushed_flag()[fd] = true;
         return *this;
     }
     
@@ -806,9 +832,9 @@ inline cout_t cout;
 inline cerr_t cerr;
 inline endl_t endl;
 
-inline endl_t& _endl = endl;
-inline cout_t& _cout = cout;
-inline cerr_t& _cerr = cerr;
+inline cout_t ad_cout;
+inline cerr_t ad_cerr;
+inline endl_t ad_endl;
 
 template<typename... Args>
 inline basic_ostream& printf(const char* format, Args... args) {
@@ -843,4 +869,5 @@ inline auto setfill(Args&&... args) {
 
 } // namespace AD
 
+#endif // __ad_use_ad_io
 #endif

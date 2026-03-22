@@ -1,9 +1,9 @@
 /*    AD-DEV Public General License
  *       Version 1.0.0, December 2025
  *
- *  Copyright (c) 2025-2026 AD-iOS (1107154510@qq.com) All rights reserved.
+ *  Copyright (c) 2025-2026 AD-iOS (ad-ios334@outlook.com) All rights reserved.
  *
- *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios@qq.com)
+ *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios334@outlook.com)
  *
  *  Hereinafter, the AD-DEV Public General License is referred to as this Agreement or this License. The original source code, executable binaries, and related documentation are collectively referred to as the Software. Use for profit, including sales, leasing, advertising support, etc., is referred to as Commercial Use. Works modified or extended based on the Software are referred to as Derivative Products.
  *
@@ -53,14 +53,23 @@
 #include <fstream>
 #include <memory>
 #include <iostream>
+#include <cstring>
 
 #include "fix_std.hpp"
+#include "adlibcxx-makeupforit.hpp"
 
 #ifdef ad_rm
     #include "_rm_.hpp"
 #endif
 
-#if defined(ad_output) || defined(ad_io)
+#if defined(ad_io_use_std) && (defined(ad_output) || defined(ad_io))
+    #error "cannot define ad_io_use_std together with ad_output or ad_io"
+#endif
+
+#if defined(ad_io_use_std)
+    #include "AD_output_use_std.hpp"
+#elif defined(ad_output) || defined(ad_io)
+    #define __ad_use_ad_io
     #include "AD_output.hpp"
 #endif
 
@@ -76,7 +85,7 @@
     #include "AD_func.hpp"
 #endif
 
-#ifdef ad_null
+#ifdef load_ad_null
     #include "AD_null.hpp"
     /* Added by AD Time: 22:11/20/12/25 */
 #endif
@@ -122,6 +131,10 @@
     #include "AD_user.hpp"
 #endif
 
+#ifdef ad_cli
+    #include "ad_cli.hpp"
+#endif
+
 #ifdef ad_fs
     #include "_rm_.hpp"
     #include "_file.hpp"
@@ -134,6 +147,23 @@
 #endif
 
 #ifdef ad_all
+    #define ad_fs
+    #define ad_archive
+    #define ad_other
+    #define ad_user
+    #define ad_filename
+    #define ad_write
+    #define ad_time
+    #define ad_string
+    #define ad_read
+    #define load_ad_null
+    #define ad_func
+    #define ad_file
+    #define ad_system
+    #define ad_io
+    #define ad_rm
+    #define ad_cli
+
     #include "AD_func.hpp"
     #include "AD_null.hpp"
     #include "AD_output.hpp"
@@ -141,6 +171,7 @@
     #include "AD_time.hpp"
     #include "AD_user.hpp"
     #include "_archive.hpp"
+    #include "_archive_gzip.hpp"
     #include "_chown.hpp"
     #include "_file.hpp"
     #include "_filename.hpp"
@@ -150,7 +181,36 @@
     #include "ad_system.hpp"
     #include <archive.h>
     #include <archive_entry.h>
+    #include "ad_cli.hpp"
 #endif
+
+#if defined(ad_commonly_used) || defined(ad_comuse)
+    #define ad_fs
+    #define ad_user
+    #define ad_filename
+    #define ad_write
+    #define ad_time
+    #define ad_string
+    #define ad_read
+    #define load_ad_null
+    #define ad_file
+    #define ad_io
+    #define ad_rm
+
+    #include "AD_func.hpp"
+    #include "AD_null.hpp"
+    #include "AD_output.hpp"
+    #include "AD_string.hpp"
+    #include "AD_time.hpp"
+    #include "AD_user.hpp"
+    #include "_chown.hpp"
+    #include "_file.hpp"
+    #include "_filename.hpp"
+    #include "_read.hpp"
+    #include "_rm_.hpp"
+    #include "_write.hpp"
+#endif
+
 
 /* Added by AD Time: 23:32/12/1/26 */
 namespace AD {
@@ -165,10 +225,16 @@ namespace AD {
         inline bool touch(const std::filesystem::path& filename) {
             return _AD_touch(filename);
         }
-        
+
+        /* Added by AD Time: 12:20/10/3/26 */
+        constexpr auto& mkfile = touch;
+
         inline std::string read_all(const std::string& path) {
             return _AD_read_all(path);
         }
+
+        /* Added by AD Time: 12:20/10/3/26 */
+        constexpr auto& readall = read_all;
         
         inline std::vector<std::string> read_lines(const std::string& path) {
             return _AD_read_lines(path);
@@ -177,6 +243,8 @@ namespace AD {
         inline bool readable(const std::string& path) {
             return _AD_readable(path);
         }
+
+        constexpr auto& read_able = readable;
         
         inline int rm(const std::filesystem::path& path) {
             return _AD_rm(path);
@@ -185,14 +253,25 @@ namespace AD {
         inline int rmdir(const std::filesystem::path& path) {
             return _AD_rmdir(path);
         }
+
+        constexpr auto& rmrdir = rmdir;
+        constexpr auto& rm_r_dir = rmdir;
+        constexpr auto& rmr_dir = rmdir;
         
         inline int rmdirf(const std::filesystem::path& path) {
             return _AD_rmdirf(path);
         }
+
+        constexpr auto& rm_rf_dir = rmdirf;
+        constexpr auto& rmrf_dir = rmdirf;
+        constexpr auto& rmrfdir = rmdirf;
         
         inline int rm_safe(const std::filesystem::path& path) {
             return _AD_rm_safe(path);
         }
+
+        constexpr auto& saferm = rm_safe;
+        constexpr auto& safe_rm = rm_safe;
 
         /* Added by AD Time: 22:38/20/12/25 */
         inline bool write_all(const std::string& path, const std::string& content) {
@@ -239,9 +318,16 @@ namespace AD {
         inline int dash(const char* command) {
             return ad_dash_system(command);
         }
-
-    } /* namespace system */
-    namespace sys = command;
+    } /* namespace command */
+    // namespace sys = command;
+    namespace sys {
+        namespace run {
+            constexpr auto& bash = command::bash;
+            constexpr auto& zsh = command::zsh;
+            constexpr auto& dash = command::dash;
+            constexpr auto& fish = command::fish;
+        } /* namespace run */
+    } /* namespace sys */
   #endif
 
     /* Added by AD Time: 22:46/2/1/26 */
@@ -294,7 +380,6 @@ namespace AD {
     } /* namespace unarchive */
 
     /* Added by AD Time: 22:46/2/1/26 */
-
     namespace archive_method {
         inline bool arch_smart(const std::string& input_path, const std::string& output_path, const std::string& format = "zip") {
             return _archive_smart_(input_path, output_path, format);
@@ -338,9 +423,9 @@ namespace AD {
 
     } /* namespace archive_method */
 
-    namespace arch = archive;
-    namespace unarch = unarchive;
-    namespace auxarch = archive_method;
+    // namespace arch = archive;
+    // namespace unarch = unarchive;
+    namespace auxarchive = archive_method;
 
   #endif
 
@@ -468,6 +553,7 @@ namespace AD {
             return _AD_mkdir(path);
         }
     } /* namespace mk */
+    namespace make = mk;
   #endif
 
   #ifdef ad_system
@@ -475,7 +561,26 @@ namespace AD {
         return _ad_system(command);
     }
   #endif
-
+    /* Added by AD Time: 12:20/10/3/26 */
+    namespace run {
+      #ifdef ad_system
+        inline int sh(const char* shell, const char* command) {
+            if (std::strcmp(shell, "bash") == 0) {
+                return command::bash(command);
+            } else if (std::strcmp(shell, "zsh") == 0) {
+                return command::zsh(command);
+            } else if (std::strcmp(shell, "fish") == 0) {
+                return command::fish(command);
+            } else if (std::strcmp(shell, "dash") == 0) {
+                return command::dash(command);
+            } else {
+                return command::bash(command);
+            }
+        }
+      #endif
+        // namespace mk = ::mk;
+        // namespace make = ::make;
+    } /* namespace run */
 } /* namespace AD */
 
 namespace ad = AD;

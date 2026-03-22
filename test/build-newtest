@@ -1,0 +1,1 @@
+c++ newtest.cc -o obj/newtest && ldid -S/opt/AD/share/ens/ens.xml -Hsha1 -Hsha256 -M obj/newtest

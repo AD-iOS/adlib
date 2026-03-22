@@ -1,9 +1,9 @@
 /*    AD-DEV Public General License
  *       Version 1.0.0, December 2025
  *
- *  Copyright (c) 2025-2026 AD-iOS (1107154510@qq.com) All rights reserved.
+ *  Copyright (c) 2025-2026 AD-iOS (ad-ios334@outlook.com) All rights reserved.
  *
- *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios@qq.com)
+ *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios334@outlook.com)
  *
  *  Hereinafter, the AD-DEV Public General License is referred to as this Agreement or this License. The original source code, executable binaries, and related documentation are collectively referred to as the Software. Use for profit, including sales, leasing, advertising support, etc., is referred to as Commercial Use. Works modified or extended based on the Software are referred to as Derivative Products.
  *
@@ -38,7 +38,7 @@
 #ifndef _AD_FUNC_HPP_
 #define _AD_FUNC_HPP_
 
-#include <iostream>
+// #include <iostream>
 #include <functional>
 #include <unordered_map>
 #include <string>
@@ -46,6 +46,10 @@
 #include <typeindex>
 #include <type_traits>
 #include <vector>
+#include <mutex>
+#include "AD_output.hpp"
+
+namespace ad = AD;
 
 namespace AD {
 
@@ -79,7 +83,7 @@ public:
             debug_names()[name] = typeid(func_wrapper).name();
             return true;
         } catch (const std::exception& e) {
-            std::cerr << "[Error] Failed to register function '" << name << "': " << e.what() << std::endl;
+            ad::cerr << "[Error] Failed to register function '" << name << "': " << e.what() << ad::endl;
             return false;
         }
     }
@@ -93,7 +97,7 @@ public:
         auto it = reg.find(name);
         
         if (it == reg.end()) {
-            std::cerr << "[Error] Function '" << name << "' not found!" << std::endl;
+            ad::cerr << "[Error] Function '" << name << "' not found!" << ad::endl;
             if constexpr (!std::is_void_v<R>) return R{};
             else return;
         }
@@ -102,9 +106,9 @@ public:
             auto f = std::any_cast<FuncType>(it->second);
             return f(std::forward<CallArgs>(args)...);
         } catch (const std::bad_any_cast& e) {
-            std::cerr << "[Fatal] Type mismatch for '" << name << "'\n";
-            std::cerr << "  Expected: " << typeid(FuncType).name() << "\n";
-            std::cerr << "  Stored:   " << debug_names()[name] << "\n";
+            ad::cerr << "[Fatal] Type mismatch for '" << name << "'\n";
+            ad::cerr << "  Expected: " << typeid(FuncType).name() << "\n";
+            ad::cerr << "  Stored:   " << debug_names()[name] << "\n";
             if constexpr (!std::is_void_v<R>) return R{};
         }
     }
@@ -128,6 +132,8 @@ public:
     }
 };
 
+/*
+
 struct AutoRegHelper {
     std::string name;
     AutoRegHelper(const char* n) : name(n) {}
@@ -139,25 +145,44 @@ struct AutoRegHelper {
     }
 };
 
+*/
+
+struct AutoRegHelper {
+    std::string name;
+    AutoRegHelper(const char* n) : name(n) {}
+    template <typename F>
+    int operator=(F&& f) {
+        AD::DynamicSystem::define(name, std::forward<F>(f));
+        return 0;
+    }
+};
+
 } // namespace AD
 
-#define ad_func(name) static int _reg_##name = AD::AutoRegHelper(#name) = [] 
+#define adfunc(name) inline static int _reg_##name = AD::AutoRegHelper(#name) = [] 
 
-#define ad_call(name, Sig, ...) \
+#define adfunccall(name, Sig, ...) \
     AD::DynamicSystem::invoke<Sig>(#name, ##__VA_ARGS__)
 
-#define ad_safe_call(name, Sig, default_val, ...) \
+#define adfuncsafecall(name, Sig, default_val, ...) \
     ([&]() -> typename AD::func_traits<Sig>::return_type { \
         if (AD::DynamicSystem::exists(#name)) { \
             try { \
                 return AD::DynamicSystem::invoke<Sig>(#name, ##__VA_ARGS__); \
             } catch (...) { \
-                std::cerr << "[Warn] Call failed for " << #name << ", using default.\n"; \
+                ad::cerr << "[Warn] Call failed for " << #name << ", using default.\n"; \
                 return default_val; \
             } \
         } \
-        std::cerr << "[Warn] Function " << #name << " not found, using default.\n"; \
+        ad::cerr << "[Warn] Function " << #name << " not found, using default.\n"; \
         return default_val; \
     }())
 
+// #define ad_func adfunc
+#define adfunc_call adfunccall
+
+#define newadfunc(name) inline static int _reg_##name = AD::AutoRegHelper(#name) = [&]
+
+#define new_adfunc newadfunc
+#define adfunc_safe_call adfuncsafecall
 #endif

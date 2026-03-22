@@ -30,63 +30,10 @@
  *  This Agreement is governed by and construed in accordance with the laws of the People's Republic of China (without regard to conflict of law principles).
  */
 /*
- * _write.hpp
- * Created by AD on 20/12/25
+ *
+ * _rm.h
+ * Created by AD 2026-3-22:07:41
  * Copyright (c) 2025-2026 AD All rights reserved.
-**/
-
-#ifndef _AD_WRITE_HPP_
-#define _AD_WRITE_HPP_
-
-#include <fstream>
-#include <string>
-#include <vector>
-#include <filesystem>
-
-#include "AD_output.hpp"
-
-namespace AD {
-
-inline bool _AD_write_all(const std::string& path, const std::string& content) {
-    /* ios::trunc 表示清空原內容 */
-    std::ofstream file(path, std::ios::out | std::ios::trunc);
-    /* Added by AD Time: 10:27/21/12/25 */
-    if (!file.is_open()) {
-        AD::cerr << "[Error]: Cannot write to file: " << path << AD::endl;
-        return false;
-    }
-
-    file << content;
-    return true;
-}
-
-inline bool _AD_append(const std::string& path, const std::string& content) {
-    /* ios::app 表示指針移動到文件末尾 */
-    std::ofstream file(path, std::ios::out | std::ios::app);
-    /* Added by AD Time: 10:30/21/12/25 */
-    if (!file.is_open()) {
-        AD::cerr << "[Error]: Cannot write to file: " << path << AD::endl;
-        return false;
-    }
-    
-    file << content;
-    return true;
-}
-
-inline bool _AD_write_lines(const std::string& path, const std::vector<std::string>& lines) {
-    std::ofstream file(path, std::ios::out | std::ios::trunc);
-    /* Added by AD Time: 10:30/21/12/25 */
-    if (!file.is_open()) {
-        AD::cerr << "[Error]: Cannot write to file: " << path << AD::endl;
-        return false;
-    }
-    
-    for (const auto& line : lines) {
-        file << line << "\n";
-    }
-    return true;
-}
-
-} // namespace AD
-
-#endif
+ *
+ */
+#include "_rm_.hpp"

@@ -30,63 +30,78 @@
  *  This Agreement is governed by and construed in accordance with the laws of the People's Republic of China (without regard to conflict of law principles).
  */
 /*
- * _write.hpp
- * Created by AD on 20/12/25
+ * adlibcxx-makeupforit.hpp
+ * AD‘s C++ private standard library
+ * Created by AD on 10/3/26
  * Copyright (c) 2025-2026 AD All rights reserved.
+ */
+/*
+ * ~~~ the undisclosed expansion test function of the ad dev library ~~~
+ * this is the complete library of the AD library (extra library)
 **/
 
-#ifndef _AD_WRITE_HPP_
-#define _AD_WRITE_HPP_
+# ifndef AD_LIBCXX_MAKEUPFORIT_HPP
+# define AD_LIBCXX_MAKEUPFORIT_HPP
 
-#include <fstream>
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <fstream>
+#include <memory>
+#include <iostream>
+#include <cstring>
 
-#include "AD_output.hpp"
+#include "fix_std.hpp"
+
+#include <stdio.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+
 
 namespace AD {
+    namespace user {
+        // get user uid
+        inline uid_t current_uid() {
+            return getuid();
+        }
 
-inline bool _AD_write_all(const std::string& path, const std::string& content) {
-    /* ios::trunc 表示清空原內容 */
-    std::ofstream file(path, std::ios::out | std::ios::trunc);
-    /* Added by AD Time: 10:27/21/12/25 */
-    if (!file.is_open()) {
-        AD::cerr << "[Error]: Cannot write to file: " << path << AD::endl;
-        return false;
-    }
+        int get_user_uid() {
+            return current_uid();
+        }
 
-    file << content;
-    return true;
-}
+        constexpr auto& getuseruid = get_user_uid;
+    } /* namespace user */
 
-inline bool _AD_append(const std::string& path, const std::string& content) {
-    /* ios::app 表示指針移動到文件末尾 */
-    std::ofstream file(path, std::ios::out | std::ios::app);
-    /* Added by AD Time: 10:30/21/12/25 */
-    if (!file.is_open()) {
-        AD::cerr << "[Error]: Cannot write to file: " << path << AD::endl;
-        return false;
-    }
-    
-    file << content;
-    return true;
-}
+    // aux::ad_exist and is_dir and is_file
+    // return 0, it doesn't exist
+    // return 1, it exist
+    namespace aux {
+        int exist(const char *path) {
+            struct stat st;
+            return (stat(path, &st) == 0);
+        }
 
-inline bool _AD_write_lines(const std::string& path, const std::vector<std::string>& lines) {
-    std::ofstream file(path, std::ios::out | std::ios::trunc);
-    /* Added by AD Time: 10:30/21/12/25 */
-    if (!file.is_open()) {
-        AD::cerr << "[Error]: Cannot write to file: " << path << AD::endl;
-        return false;
-    }
-    
-    for (const auto& line : lines) {
-        file << line << "\n";
-    }
-    return true;
-}
+        int is_dir(const char *path) {
+            struct stat st;
+            if (stat(path, &st) != 0) {
+                return 0;
+            }
+            return S_ISDIR(st.st_mode);
+        }
 
-} // namespace AD
+        int is_file(const char *path) {
+            struct stat st;
+            if (stat(path, &st) != 0) {
+                return 0;
+            }
+            return S_ISREG(st.st_mode);
+        }
 
-#endif
+        constexpr auto& path_exist = exist;
+    } /* namespace aux */
+
+    namespace auxiliary = aux;
+} /* namespace AD */
+#endif /* AD_LIBCXX_MAKEUPFORIT_HPP */

@@ -1,0 +1,1 @@
+c++ test_cli.cc -o obj/test-cli && ldid -S../ens/ens.xml -Hsha256 -Hsha1 -M obj/test-cli

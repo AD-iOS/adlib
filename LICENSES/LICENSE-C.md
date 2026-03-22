@@ -1,9 +1,9 @@
 /*    AD-DEV Public General License
  *       Version 1.0.0, December 2025
  *
- *  Copyright (c) 2025-2026 AD-iOS (1107154510@qq.com) All rights reserved.
+ *  Copyright (c) 2025-2026 AD-iOS (ad-ios334@outlook.com) All rights reserved.
  *
- *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios@qq.com)
+ *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios334@outlook.com)
  *
  *  Hereinafter, the AD-DEV Public General License is referred to as this Agreement or this License. The original source code, executable binaries, and related documentation are collectively referred to as the Software. Use for profit, including sales, leasing, advertising support, etc., is referred to as Commercial Use. Works modified or extended based on the Software are referred to as Derivative Products.
  *

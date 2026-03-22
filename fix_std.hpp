@@ -1,9 +1,9 @@
 /*    AD-DEV Public General License
  *       Version 1.0.0, December 2025
  *
- *  Copyright (c) 2025-2026 AD-iOS (1107154510@qq.com) All rights reserved.
+ *  Copyright (c) 2025-2026 AD-iOS (ad-ios334@outlook.com) All rights reserved.
  *
- *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios@qq.com)
+ *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios334@outlook.com)
  *
  *  Hereinafter, the AD-DEV Public General License is referred to as this Agreement or this License. The original source code, executable binaries, and related documentation are collectively referred to as the Software. Use for profit, including sales, leasing, advertising support, etc., is referred to as Commercial Use. Works modified or extended based on the Software are referred to as Derivative Products.
  *
@@ -31,7 +31,8 @@
  */
 /*
  *
- * fix_std_fs.hpp
+ * fix_std.hpp
+ * old name: fix_std_fs.hpp
  * Created by AD 21/1/26
  * Copyright (c) 2025-2026 AD All rights reserved.
  *
@@ -42,59 +43,45 @@
 /*
  * ====------------ fix ------------====
  * fix@change: change fs(std::filesystem) to std::fs
- * fix@change: remove fs define
- * fix@add: add namespace cc
- * fix@add: add add string to namespace cc
- * fix@change: ``std_system = ::system`` to std_system = std::system, add cstdlib include
+ * fix@change: add alias of c++ std
+ * fix@change: add the aliases `filesystem` and `fs` of the __filesystem namespace
 **/
 
 #ifndef _AD_STD_FIX_HPP__
 #define _AD_STD_FIX_HPP__
 
-#ifdef _ad_cc__
-  #ifdef _ad_std_string_cc
-    #include <string>
-    #include <cstring>
-  #endif
-#endif
+#include <version>
 
 // C++ std alias
 #ifdef _ad_cxx__
-  #ifdef _ad_std_alias_cxx
-  #endif
+    #define _ad_std_alias_cxx
 #endif
 
-#ifdef _ad_cancel_std_system
-  #include <cstdlib>
-  static constexpr auto& std_system = std::system;
+#ifdef _ad_stdcxx_alias
+    #define _ad_cancel_std_system
+    #include <cstdlib>
+    #include <string>
+    #include <cstring>
+    static constexpr auto& std_system = std::system;
 #endif
 
 namespace std {
-  #ifdef _LIBCPP_VERSION
-    namespace fs = std::__fs::filesystem;
-  #else
-    namespace fs = std::filesystem;
-  #endif
-    // namespace fs = std::filesystem;
-    #ifdef _ad_cc_
-      namespace cc {
-        #ifdef _ad_std_string_cc
-          namespace string {
-            inline int strcpy(...);
-            inline int strcmp(...);            inline int strcat(...);            inline int strlen(...);            inline int strstr(...);            inline int memcpy(...);            inline int memset(...);
-          } /* namespace cc::string */
-          #endif
-      } /* namespace cc */
-      #endif
-  #ifdef _ad_cancel_std_system
+#if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION <= 14000
+    namespace fs = __fs::filesystem;
+    namespace filesystem = __fs::filesystem;
+#else
+    namespace fs = filesystem;
+#endif
+
+#ifdef _ad_cancel_std_system
     inline int command(const std::string& cmd) {
         return std_system(cmd.c_str());
     }
-  #endif
+#endif
 } /* namespace std */
 
 #ifdef _ad_std_alias_cxx
-  namespace cxx = std;
+  namespace std_cxx = std;
   namespace standard = std;
 #endif /* _ad_std_alias_cxx */
 #endif /* _AD_STD_FIX_HPP__ */

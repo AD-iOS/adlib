@@ -1,9 +1,9 @@
 /*    AD-DEV Public General License
  *       Version 1.0.0, December 2025
  *
- *  Copyright (c) 2025-2026 AD-iOS (1107154510@qq.com) All rights reserved.
+ *  Copyright (c) 2025-2026 AD-iOS (ad-ios334@outlook.com) All rights reserved.
  *
- *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios@qq.com)
+ *  (Note: AD, AD-dev, and AD-iOS refer to the same person. Email: ad-ios334@outlook.com)
  *
  *  Hereinafter, the AD-DEV Public General License is referred to as this Agreement or this License. The original source code, executable binaries, and related documentation are collectively referred to as the Software. Use for profit, including sales, leasing, advertising support, etc., is referred to as Commercial Use. Works modified or extended based on the Software are referred to as Derivative Products.
  *
@@ -31,9 +31,17 @@
  */
 /*
  * AD_null.hpp
- * AD‘s C++ private standard library
+ * AD's C++ private standard library
  * Created by AD on 5/11/25
  * Copyright (c) 2025-2026 AD All rights reserved.
+ */
+/*
+ * update log:
+ *  alias:
+ *   - hide_cout : redirect only std::cout
+ *   - hide_cerr : redirect only std::cerr
+ *   - hide_all  : redirect both stdout, stderr
+ *  remove old use way
  *
 **/
 
@@ -47,23 +55,78 @@
 namespace AD {
 
 /**
- * @Brief RAII class is used to temporarily redirect std::cout or std::cout/std::cerr to /dev/null
+ * @brief Redirection mode enumeration
+ * 
+ * hide_cout : redirect only std::cout
+ * hide_cerr : redirect only std::cerr
+ * hide_all  : redirect both std::cout and std::cerr
+ */
+enum class RedirectMode {
+    hide_cout,
+    hide_cerr,
+    hide_all
+};
+
+// Aliases for backward compatibility and convenience
+using hide_cout = RedirectMode;
+using hide_cerr = RedirectMode;
+using hide_all = RedirectMode;
+
+/**
+ * @brief RAII class to temporarily redirect std::cout and/or std::cerr to /dev/null
  *
- * The constructor function executes redirection, and the deconstructor function restores the original stream.
- * Ensure automatic recovery at the end of the scope
-**/
+ * The constructor executes redirection, and the destructor restores the original stream.
+ * Ensures automatic recovery at the end of the scope.
+ * 
+ * Usage examples:
+ *   AD_null null(RedirectMode::hide_cout);     // hide only cout
+ *   AD_null null(RedirectMode::hide_cerr);     // hide only cerr
+ *   AD_null null(RedirectMode::hide_all);      // hide both
+ *   AD_null null;                              // default: hide only cout
+ *   AD_null null(true);                         // legacy: hide both
+ **/
 
 class AD_null {
 public:
-
-    explicit AD_null(bool redirect_cerr = false)
-        : redirect_cerr_(redirect_cerr),
+    /**
+     * @brief Constructor with RedirectMode (new style)
+     * @param mode Redirection mode (default: hide_cout)
+     */
+    explicit AD_null(RedirectMode mode = RedirectMode::hide_cout)
+        : mode_(mode),
           old_cout_buf_(nullptr),
           old_cerr_buf_(nullptr),
           is_redirected_(false)
     {
-        /* Select the path of /dev/null according to the operating system. */
+        redirect();
+    }
 
+    /**
+     * @brief Constructor for backward compatibility
+     * @param redirect_cerr true to hide both cout and cerr, false to hide only cout
+     */
+    explicit AD_null(bool redirect_cerr)
+        : mode_(redirect_cerr ? RedirectMode::hide_all : RedirectMode::hide_cout),
+          old_cout_buf_(nullptr),
+          old_cerr_buf_(nullptr),
+          is_redirected_(false)
+    {
+        redirect();
+    }
+
+    ~AD_null() {
+        restore();
+    }
+
+    // Prevent copying and moving
+    AD_null(const AD_null&) = delete;
+    AD_null& operator=(const AD_null&) = delete;
+    AD_null(AD_null&&) = delete;
+    AD_null& operator=(AD_null&&) = delete;
+
+private:
+    void redirect() {
+        /* Select the path of /dev/null according to the operating system. */
 #ifdef _WIN32
         const std::string dev_null_path = "NUL";
 #else
@@ -72,42 +135,83 @@ public:
 
         dev_null_file_.open(dev_null_path);
         if (dev_null_file_.is_open()) {
-            old_cout_buf_ = std::cout.rdbuf();
-            std::cout.rdbuf(dev_null_file_.rdbuf());
-
-            if (redirect_cerr_) {
+            // Redirect cout if needed
+            if (mode_ == RedirectMode::hide_cout || mode_ == RedirectMode::hide_all) {
+                old_cout_buf_ = std::cout.rdbuf();
+                std::cout.rdbuf(dev_null_file_.rdbuf());
+            }
+            
+            // Redirect cerr if needed
+            if (mode_ == RedirectMode::hide_cerr || mode_ == RedirectMode::hide_all) {
                 old_cerr_buf_ = std::cerr.rdbuf();
                 std::cerr.rdbuf(dev_null_file_.rdbuf());
             }
+            
             is_redirected_ = true;
         } else {
-            std::cerr << "Warning: Failed to open " << dev_null_path << " for redirection. Output will not be suppressed." << std::endl;
+            std::cerr << "Warning: Failed to open " << dev_null_path 
+                     << " for redirection. Output will not be suppressed." << std::endl;
         }
     }
 
-    ~AD_null() {
+    void restore() {
         if (is_redirected_) {
-            std::cout.rdbuf(old_cout_buf_);
-            if (redirect_cerr_) {
+            // Restore cout if it was redirected
+            if (mode_ == RedirectMode::hide_cout || mode_ == RedirectMode::hide_all) {
+                std::cout.rdbuf(old_cout_buf_);
+            }
+            
+            // Restore cerr if it was redirected
+            if (mode_ == RedirectMode::hide_cerr || mode_ == RedirectMode::hide_all) {
                 std::cerr.rdbuf(old_cerr_buf_);
             }
+            
             dev_null_file_.close();
+            is_redirected_ = false;
         }
     }
 
-    AD_null(const AD_null&) = delete;
-    AD_null& operator=(const AD_null&) = delete;
-    AD_null(AD_null&&) = delete;
-    AD_null& operator=(AD_null&&) = delete;
-
 private:
-    bool redirect_cerr_;
+    RedirectMode mode_;
     std::streambuf* old_cout_buf_;
     std::streambuf* old_cerr_buf_;
     std::ofstream dev_null_file_;
     bool is_redirected_;
 };
 
+
+/*
+ * usage:
+ *   AD_null hide_all;
+ *   AD_null hide_cerr;
+ *   AD_null hide_cout;
+ * or:
+ *   ad_null hide_all;
+ *   ad_null hide_cout;
+ *   ad_null hide_cerr;
+**/
+
+/**
+ * @add: add a new alias macro
+ */
+#define ad_null AD_null
+
+/**
+ * @brief: create an AD_null macro that only hides cout
+ */
+#define hide_cout AD::AD_null(AD::RedirectMode::hide_cout)
+
+/**
+ * @brief: create an AD_null macro that only hides cerr
+ */
+#define hide_cerr AD::AD_null(AD::RedirectMode::hide_cerr)
+
+/**
+ * @brief: create an AD_null macro that hides cout and cerr at the same time
+ */
+#define hide_all AD::AD_null(AD::RedirectMode::hide_all)
+
+
 } /* namespace AD */
 
-#endif // AD_NULL_HPP_
+#endif // _AD_NULL_HPP_
