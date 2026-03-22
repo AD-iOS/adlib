@@ -2,18 +2,25 @@
 
 > author: AD <ad-ios334@outlook.com>    
 > maintenance: AD <ad-ios334@outlook.com>    
+<<<<<<< HEAD
 > version: 1.0
+=======
+> version: 1.1
+>>>>>>> 89fdbfd (from update of AD-iOS Sun, 22 Mar 2026 08:33:09 +0800 2026-03-22 08:33)
 
 ### AD 的 C++庫
 AD's C++ dev library, 簡稱 ADCDL
 
 ## 修改
-- 標準庫命名空間修改:
+- **標準庫命名空間修改:**
+<br>
 ADCDL 修改了 std 命名空間(具體請看 fix_std.hpp)
 如果不使用 ADCDL 不推薦引入 fix_std.hpp 頭文檔, 除非你有特殊需求
+<br>
 fix_std.hpp 主要添加了 std::fs 即在 std 命名空間中添加了 fs
+<br>
 並且為了確保 clang14 (可能包括以下) 編譯器可以使用 std::filesystem, 我們給 std 命名空間中添加了以下程式碼(包括添加的 fs 程式碼)
-如果你沒有特殊用途應該使用 std::filesystem 或者 namespace fs = std::filesystem 而不是使用 std::fs
+<br>
 ```c++
 #ifdef _LIBCPP_VERSION
     namespace fs = __fs::filesystem;
@@ -22,10 +29,12 @@ fix_std.hpp 主要添加了 std::fs 即在 std 命名空間中添加了 fs
     namespace fs = filesystem;
 #endif
 ```
+如果你沒有特殊用途應該使用 std::filesystem 或者 namespace fs = std::filesystem 而不是使用 std::fs
 
-- 提供
-庫提供了 mkdir, touch, mkfile(touch 的別名), read, ... , archive 等等
-如果使用 archive api 請安裝[libarchive](https://github.com/libarchive/libarchive)庫
+## 提供
+庫提供了 mkdir, touch, mkfile(touch 的別名), read, ... , archive 等等 api
+<br>
+如果要使用 archive api 請安裝[libarchive](https://github.com/libarchive/libarchive)庫
 
 ## 其他
 如果無法從`ad-ios334@outlook.com`電子郵件聯繫上我(AD)請嘗試以下電子郵件
