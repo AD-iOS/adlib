@@ -2,11 +2,7 @@
 
 > author: AD <ad-ios334@outlook.com>    
 > maintenance: AD <ad-ios334@outlook.com>    
-<<<<<<< HEAD
-> version: 1.0
-=======
 > version: 1.1
->>>>>>> 89fdbfd (from update of AD-iOS Sun, 22 Mar 2026 08:33:09 +0800 2026-03-22 08:33)
 
 ### AD 的 C++庫
 AD's C++ dev library, 簡稱 ADCDL
