@@ -1,6 +1,6 @@
 # adlib
 
-> author AD <ad-ios334@outlook.com>  maintenance: AD <ad-ios334@outlook.com>  version: 1.0
+> author AD <ad-ios334@outlook.com>    maintenance: AD <ad-ios334@outlook.com>  version: 1.0
 
 ### AD 的 C++庫
 AD's C++ dev library, 簡稱 ADCDL
@@ -27,9 +27,12 @@ fix_std.hpp 主要添加了 std::fs 即在 std 命名空間中添加了 fs
 
 ## 其他
 如果無法從`ad-ios334@outlook.com`電子郵件聯繫上我(AD)請嘗試以下電子郵件
-ad-ios335@outlook.com
-ad-ios336@outlook.com
-ad-ios337@outlook.com
+<br>
+**ad-ios335@outlook.com**
+<br>
+**ad-ios336@outlook.com**
+<br>
+**ad-ios337@outlook.com**
 
 ---
 
