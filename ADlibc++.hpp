@@ -266,7 +266,7 @@ namespace AD {
         constexpr auto& rm_rf_dir = rmdirf;
         constexpr auto& rmrf_dir = rmdirf;
         constexpr auto& rmrfdir = rmdirf;
-        
+
         inline int rm_safe(const std::filesystem::path& path) {
             return _AD_rm_safe(path);
         }

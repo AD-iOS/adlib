@@ -74,25 +74,11 @@ namespace AD {
                 return "";
             }
             // 實現 <= 操作符
-            bool operator<=(int n) const {
-                return m_argc <= n;
-            }
-            
-            bool operator>=(int n) const {
-                return m_argc >= n;
-            }
-            
-            bool operator==(int n) const {
-                return m_argc == n;
-            }
-            
-            bool operator<(int n) const {
-                return m_argc < n;
-            }
-            
-            bool operator>(int n) const {
-                return m_argc > n;
-            }
+            bool operator<=(int n) const { return m_argc <= n; }
+            bool operator>=(int n) const { return m_argc >= n; }
+            bool operator==(int n) const { return m_argc == n; }
+            bool operator<(int n) const { return m_argc < n; }
+            bool operator>(int n) const { return m_argc > n; }
             // 實現 == 操作符（用於匹配選項）
             bool operator==(const char* opt) const {
                 for (size_t i = 1; i < m_args.size(); i++) {
@@ -132,9 +118,7 @@ namespace AD {
         // 全局實例
         static std::unique_ptr<CLIInput> g_cli = nullptr;
         // 初始化
-        inline void init(int argc, char* argv[]) {
-            g_cli = std::make_unique<CLIInput>(argc, argv);
-        }
+        inline void init(int argc, char* argv[]) { g_cli = std::make_unique<CLIInput>(argc, argv); }
         // 獲取 arg 對象
         inline const Arg& get_arg() {
             if (!g_cli) {
@@ -143,9 +127,16 @@ namespace AD {
             return g_cli->arg();
         }
         // 全局 arg 函數
-        inline const Arg& arg() {
+        inline const Arg& arg() { return get_arg(); }
+
+        constexpr auto& arg_impl = arg;
+
+        # define arg arg_impl()
+/*
+        inline const Arg& arg_impl() {
             return get_arg();
         }
+*/
         // getinput
         inline void __getinput(bool condition) {
             if (!condition) {
@@ -155,6 +146,7 @@ namespace AD {
               #endif
             }
         }
+
         /* added by AD time: 2026-3-20:19:14 */
         // 無參數版本, 用於向後兼容
         inline void __getinput() { /* 什麼都不做 */ }
@@ -165,7 +157,6 @@ namespace AD {
         }
 
         // inline constexpr auto& require = __getinput;
-        
     } // namespace cli
 } // namespace AD
 
