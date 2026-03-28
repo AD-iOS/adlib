@@ -45,13 +45,15 @@
 
 # ifndef _ADLIBCXX_OBJC_HPP_
 # define _ADLIBCXX_OBJC_HPP_
-# ifdef __OBJC__
+# if defined(__OBJC__) && defined(__APPLE__)
 # import <Foundation/Foundation.h>
 # import <UIKit/UIKit.h>
-# endif // __OBJC__
+# else
+    # error "only apple platform and use objc/objc++ code, only then can it be used"
+# endif // __OBJC__ && __APPLE__
 
 namespace AD {
-  # if defined(ad_use_objc_code) || defined(ad_use_objc)
+  # if defined(__OBJC__) && defined(__APPLE__) && defined(ad_use_objc_code) || defined(ad_use_objc)
     namespace ui {
         // MARK: 應用程式入口
         inline int run(int argc, char* argv[], id delegate = nil) {
@@ -325,6 +327,14 @@ namespace AD {
         } // namespace alert
     } // namespace ui
     namespace UI = ui;
-  # endif // ad_use_objc_code || ad_use_objc
+    namespace get {
+        inline std::string apphome() {
+            NSString *home = NSHomeDirectory();
+            return std::string([home UTF8String]);
+        }
+    } // namespace get
+  # else
+    # error "only apple platform and use objc/objc++ code, only then can it be used"
+  # endif // __OBJC__ && __APPLE__ && ad_use_objc_code || ad_use_objc
 } // namespace AD
 # endif // _ADLIBCXX_OBJC_HPP_

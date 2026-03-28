@@ -63,40 +63,32 @@
 namespace AD {
     namespace user {
         // get user uid
-        inline uid_t current_uid() {
-            return getuid();
-        }
+        inline uid_t current_uid() { return getuid(); }
 
-        int get_user_uid() {
-            return current_uid();
-        }
+        int get_user_uid() { return current_uid(); }
 
         constexpr auto& getuseruid = get_user_uid;
     } /* namespace user */
 
     // aux::ad_exist and is_dir and is_file
-    // return 0, it doesn't exist
-    // return 1, it exist
+    // return 0, it exists
+    // return 1, it doesn't exist
     namespace aux {
         int exist(const char *path) {
             struct stat st;
-            return (stat(path, &st) == 0);
+            return (stat(path, &st) != 0); /* 0 if exists, 1 if not exists */
         }
 
         int is_dir(const char *path) {
             struct stat st;
-            if (stat(path, &st) != 0) {
-                return 0;
-            }
-            return S_ISDIR(st.st_mode);
+            if (stat(path, &st) != 0) { return 1; /* doesn't exist or error */ }
+            return (S_ISDIR(st.st_mode) ? 0 : 1);  /* 0 if is directory, 1 if not */
         }
 
         int is_file(const char *path) {
             struct stat st;
-            if (stat(path, &st) != 0) {
-                return 0;
-            }
-            return S_ISREG(st.st_mode);
+            if (stat(path, &st) != 0) { return 1; /* doesn't exist or error */ }
+            return (S_ISREG(st.st_mode) ? 0 : 1);  // 0 if is file, 1 if not
         }
 
         constexpr auto& path_exist = exist;

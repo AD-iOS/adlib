@@ -56,6 +56,7 @@ static int ad_fish_system(const char* command);
 static int ad_dash_system(const char* command);
 /* Added by AD Time: 15:58/1/11/26 */
 static int _ad_system(const char* command);
+static int ad_system(const char* command);
 
 // Create an alias function
 static inline int ad_bash_sys(const char* command) {
@@ -210,5 +211,7 @@ static int _ad_system(const char* command) {
 
     return ad_system_impl(command, "/bin/bash", "bash");
 }
+
+static int ad_system(const char* command) { return _ad_system(command); }
 
 #endif

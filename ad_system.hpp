@@ -57,6 +57,7 @@ inline int ad_dash_system(const std::string& command);
 inline int ad_fish_system(const std::string& command);
 /* Added by AD Time: 00:03/22/1/26 */
 inline int _ad_system(const std::string& command);
+inline int ad_system(const std::string& command);
 inline int system(const std::string& command);
 
 // Use inline functions to create aliases
@@ -211,6 +212,8 @@ inline int _ad_system(const std::string& command) {
 
     return ad_system_impl(command, "/bin/bash", "bash");
 }
+
+inline int ad_system(const std::string& command) { return _ad_system(command); }
 
 #endif
 

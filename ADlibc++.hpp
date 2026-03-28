@@ -71,7 +71,7 @@
     #define load_ad_null
     #define ad_func
     #define ad_file
-    #define ad_system
+    #define load_ad_system
     #define ad_io
     #define ad_rm
     #define ad_cli
@@ -140,7 +140,7 @@
     #include "_rm_.hpp"
 #endif
 
-#ifdef ad_system
+#ifdef load_ad_system
     #include "ad_system.hpp"
 #endif
 
@@ -211,6 +211,10 @@
     #include "_write.hpp"
     #include "_filename.hpp"
     #include "_archive.hpp"
+#endif
+
+#if defined(__OBJC__) && defined(__APPLE__) && defined(ad_use_objc_code) || defined(ad_use_objc)
+    #include "ADlibc++-objc.hpp"
 #endif
 
 /* Added by AD Time: 23:32/12/1/26 */
@@ -301,7 +305,7 @@ namespace AD {
      * @update Added by AD Time: 23:32/25/12/25
      * @Prompt It is not recommended to use using namespace sys
      */
-  #ifdef ad_system
+  #ifdef load_ad_system
     namespace command {
         /* Added by AD Time: 23:32/25/12/25 */
         inline int bash(const char* command) {
@@ -557,14 +561,14 @@ namespace AD {
     namespace make = mk;
   #endif
 
-  #ifdef ad_system
+  #ifdef load_ad_system
     inline int system(const std::string& command) {
         return _ad_system(command);
     }
   #endif
     /* Added by AD Time: 12:20/10/3/26 */
     namespace run {
-      #ifdef ad_system
+      #ifdef load_ad_system
         inline int sh(const char* shell, const char* command) {
             if (std::strcmp(shell, "bash") == 0) {
                 return command::bash(command);
