@@ -6,7 +6,7 @@
 
 ###### this is header-only dev lib
 ### AD 的 C++ 庫
-AD's C++ dev library, 簡稱 `ADCDL` 庫 或 `AD` 庫
+AD's C++ dev library, 簡稱 `ADCDL` 庫 或 `AD` 庫  
 下把本項目簡稱為`庫`  
 
 ## 修改  
