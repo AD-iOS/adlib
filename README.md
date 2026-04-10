@@ -24,7 +24,7 @@ fix_std.hpp 主要添加了 std::fs 即在 std 命名空間中添加了 fs
 #endif
 ```
 
-如果你沒有特殊用途的話, 你應該使用`std::filesystem`或者`namespace fs = std::filesystem`而不是使用`std::fs`  
+如果你沒有特殊用途的話, 你應該使用`std::filesystem`或者`namespace fs = std::filesystem`而不是使用`std::fs`庫是極其不推薦更不建議使用`std::fs`的    
 
 ## 提供
 庫提供了 mkdir, touch, mkfile(touch 的別名), read, ... , archive 等等 api  
@@ -33,7 +33,7 @@ fix_std.hpp 主要添加了 std::fs 即在 std 命名空間中添加了 fs
 [libarchive](https://github.com/libarchive/libarchive)  
 [curl](https://github.com/curl/curl)  
 [openssl](https://github.com/openssl/openssl)  
-[libboost](https://github.com/boostorg/boost)  
+[boost](https://github.com/boostorg/boost)  
 
 
 ## 其他
