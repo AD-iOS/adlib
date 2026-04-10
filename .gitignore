@@ -20,3 +20,11 @@ test/libs/Terminal
 test/libs/libad.so.1
 test/libs/test
 oc-update
+test/testapp/www
+test/testapp/testapp.www.all.md
+test/testapp/update
+test/test2-cli/test2-cli
+test/apps/*
+test/test2-cli/term
+test/build.sh
+test/Terminal
