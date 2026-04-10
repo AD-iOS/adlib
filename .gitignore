@@ -29,4 +29,6 @@ test/test2-cli/term
 test/build.sh
 test/Terminal
 test.1/*
+test/test2-ctl/test2-ctl
+test/test2-ctl/term
 
