@@ -41,7 +41,7 @@ fix_std.hpp 主要添加了 std::fs 即在 std 命名空間中添加了 fs
 你可以在程式碼中定義`#define ad_io_use_std`, 這樣子`ad::cout ...`就等於`std::cout ...`  
 但是庫不允許同時定義`#define ad_io_use_std`和`#define ad_output`或`#define ad_io`, 因為這會亂套(衝突)
 庫絕不推薦也絕不建議使用`using namespace AD;`否則極易導致衝突
-
+`std::fs`是庫內部使用的, 極其不建議也不應該使用它
 ## 聯繫
 如果無法從`ad-ios334@outlook.com`電子郵件聯繫上我(AD)請嘗試以下電子郵件
 <br>
