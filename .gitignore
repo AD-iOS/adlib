@@ -28,3 +28,5 @@ test/apps/*
 test/test2-cli/term
 test/build.sh
 test/Terminal
+test.1/*
+

@@ -1,1 +1,0 @@
-c++ test_io.cc -o obj/test-io && ldid -S/opt/AD/share/ens/ens.xml -Hsha1 -Hsha256 -M obj/test-io && ./obj/test-io | cat
