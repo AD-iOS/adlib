@@ -79,6 +79,58 @@ inline bool _AD_readable(const std::string& path) {
     return file.good();
 }
 
+inline std::string _AD_read_lines(const std::string& path, size_t line_number) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        AD::cerr << "[Error] Cannot open file: " << path << AD::endl;
+        return "";
+    }
+    
+    std::string line;
+    for (size_t i = 0; i <= line_number; ++i) {
+        if (!std::getline(file, line)) {
+            AD::cerr << "[Error] Line " << line_number << " not found in: " << path << AD::endl;
+            return "";
+        }
+    }
+    return line;
+}
+
+inline std::vector<std::string> _AD_read_lines(const std::string& path, 
+                                                size_t start_line, 
+                                                size_t end_line) {
+    std::vector<std::string> lines;
+    std::ifstream file(path);
+    
+    if (!file.is_open()) {
+        AD::cerr << "[Error] Cannot open file: " << path << AD::endl;
+        return lines;
+    }
+    
+    if (start_line > end_line) {
+        AD::cerr << "[Error] Invalid line range: start > end" << AD::endl;
+        return lines;
+    }
+    
+    std::string line;
+    size_t current_line = 0;
+    
+    while (std::getline(file, line)) {
+        if (current_line >= start_line && current_line <= end_line) {
+            lines.push_back(line);
+        }
+        if (current_line > end_line) break;
+        current_line++;
+    }
+    
+    if (lines.empty() && start_line <= end_line) {
+        AD::cerr << "[Error] No lines found in range [" << start_line << ", " 
+                 << end_line << "] in: " << path << AD::endl;
+    }
+    
+    return lines;
+}
+
 } // namespace AD
 
 #endif

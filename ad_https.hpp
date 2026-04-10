@@ -30,81 +30,11 @@
  *  This Agreement is governed by and construed in accordance with the laws of the People's Republic of China (without regard to conflict of law principles).
  */
 /*
- * adlibcxx-makeupforit.hpp
- * AD‘s C++ private standard library
- * Created by AD on 10/3/26
+ * ad_https.hpp
+ * Created by AD on 2026-04-09
  * Copyright (c) 2025-2026 AD All rights reserved.
  */
-/*
- * ~~~ the undisclosed expansion test function of the ad dev library ~~~
- * this is the complete library of the AD library (extra library)
-**/
-
-# ifndef AD_LIBCXX_MAKEUPFORIT_HPP
-# define AD_LIBCXX_MAKEUPFORIT_HPP
-
-#include <string>
-#include <vector>
-#include <filesystem>
-#include <fstream>
-#include <memory>
-#include <iostream>
-#include <cstring>
-
-# include <limits.h>
-
-#include "fix_std.hpp"
-
-#include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/wait.h>
-
-
-namespace AD {
-    namespace user {
-        // get user uid
-        inline uid_t current_uid() { return getuid(); }
-
-        int get_user_uid() { return current_uid(); }
-
-        constexpr auto& getuseruid = get_user_uid;
-    } /* namespace user */
-
-    // aux::ad_exist and is_dir and is_file
-    // return 0, it exists
-    // return 1, it doesn't exist
-    namespace aux {
-        int exist(const char *path) {
-            struct stat st;
-            return (stat(path, &st) != 0); /* 0 if exists, 1 if not exists */
-        }
-
-        int is_dir(const char *path) {
-            struct stat st;
-            if (stat(path, &st) != 0) { return 1; /* doesn't exist or error */ }
-            return (S_ISDIR(st.st_mode) ? 0 : 1);  /* 0 if is directory, 1 if not */
-        }
-
-        int is_file(const char *path) {
-            struct stat st;
-            if (stat(path, &st) != 0) { return 1; /* doesn't exist or error */ }
-            return (S_ISREG(st.st_mode) ? 0 : 1);  // 0 if is file, 1 if not
-        }
-
-        constexpr auto& path_exist = exist;
-
-        std::string resolve_path(const std::string& path) {
-            char resolved_path[PATH_MAX];
-            if (realpath(path.c_str(), resolved_path) != nullptr) {
-                return std::string(resolved_path);
-            }
-            return path;  // 解析失敗返回原路徑
-        }
-        constexpr auto& parselink = resolve_path;
-    } /* namespace aux */
-
-    namespace auxiliary = aux;
-} /* namespace AD */
-#endif /* AD_LIBCXX_MAKEUPFORIT_HPP */
+# ifndef _AD_HTTPS_HPP_
+# define _AD_HTTPS_HPP_
+# include "ad_internet.hpp"
+# endif

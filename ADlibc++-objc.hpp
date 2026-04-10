@@ -81,7 +81,7 @@ namespace AD {
                 [label setContentHuggingPriority:UILayoutPriorityRequired 
                                          forAxis:UILayoutConstraintAxisVertical];
 
-                // 横向
+                // 橫向
 /*
                 [label setContentCompressionResistancePriority:UILayoutPriorityRequired 
                                                        forAxis:UILayoutConstraintAxisHorizontal];
@@ -89,6 +89,11 @@ namespace AD {
                                          forAxis:UILayoutConstraintAxisHorizontal];
 */
                 return label;
+            }
+
+            inline UILabel* label(NSString* prefix, NSString* text) {
+                NSString* combined = [NSString stringWithFormat:@"%@%@", prefix, text];
+                return label(combined);
             }
 
             inline UIButton* button(NSString* title) {
@@ -103,7 +108,7 @@ namespace AD {
             }
             constexpr auto& navctrl = navigationController;
             constexpr auto& navctl = navigationController;
-            // 添加 UIImageView
+            // add UIImageView
             inline UIImageView* imageView(UIImage* image) {
                 UIImageView* imageView = [[UIImageView alloc] initWithImage:image];
                 imageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -116,7 +121,7 @@ namespace AD {
                 return imageView(image);
             }
             auto imgview = [](auto&& arg) { return imageView(std::forward<decltype(arg)>(arg)); };
-            // 添加 UITextField
+            // add UITextField
             inline UITextField* textField(NSString* placeholder = nil) {
                 UITextField* textField = [[UITextField alloc] init];
                 textField.borderStyle = UITextBorderStyleRoundedRect;
@@ -125,20 +130,20 @@ namespace AD {
                 return textField;
             }
             constexpr auto& textfield = textField;
-            // 添加 UISwitch
+            // add UISwitch
             inline UISwitch* toggle() {
                 UISwitch* toggle = [[UISwitch alloc] init];
                 toggle.translatesAutoresizingMaskIntoConstraints = NO;
                 return toggle;
             }
-            // 添加 UIScrollView
+            // add UIScrollView
             inline UIScrollView* scrollView() {
                 UIScrollView* scrollView = [[UIScrollView alloc] init];
                 scrollView.translatesAutoresizingMaskIntoConstraints = NO;
                 return scrollView;
             }
             constexpr auto& scrollview = scrollView;
-            // 添加 UIStackView
+            // add UIStackView
             inline UIStackView* stackView(NSArray* arrangedSubviews = nil) {
                 UIStackView* stackView = [[UIStackView alloc] initWithArrangedSubviews:arrangedSubviews];
                 stackView.axis = UILayoutConstraintAxisVertical;

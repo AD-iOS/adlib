@@ -75,6 +75,9 @@
     #define ad_io
     #define ad_rm
     #define ad_cli
+    #define ad_internet
+    #define ad_md5
+    #define ad_json
 #endif
 
 #if defined(ad_commonly_used) || defined(ad_comuse)
@@ -89,6 +92,9 @@
     #define ad_file
     #define ad_io
     #define ad_rm
+    #define ad_internet
+    #define ad_md5
+    #define ad_json
 #endif
 
 #if defined(ad_io_use_std) && (defined(ad_output) || defined(ad_io))
@@ -120,6 +126,9 @@
     #include <archive.h>
     #include <archive_entry.h>
     #include "ad_cli.hpp"
+    #include "ad_internet.hpp"
+    #include "ad_md5.hpp"
+    #include "ad_json.hpp"
 #endif
 
 #if defined(ad_commonly_used) || defined(ad_comuse)
@@ -134,6 +143,9 @@
     #include "_read.hpp"
     #include "_rm_.hpp"
     #include "_write.hpp"
+    #include "ad_internet.hpp"
+    #include "ad_md5.hpp"
+    #include "ad_json.hpp"
 #endif
 
 #ifdef ad_rm
@@ -213,6 +225,18 @@
     #include "_archive.hpp"
 #endif
 
+#if defined(ad_internet) || defined(ad_https) || defined(ad_net) || defined(ad_http) || defined(ad_www)
+    #include "ad_internet.hpp"
+#endif
+
+#ifdef ad_md5
+    #include "ad_md5.hpp"
+#endif
+
+#ifdef ad_json
+    #include "ad_json.hpp"
+#endif
+
 #if defined(__OBJC__) && defined(__APPLE__) && defined(ad_use_objc_code) || defined(ad_use_objc)
     #include "ADlibc++-objc.hpp"
 #endif
@@ -240,9 +264,24 @@ namespace AD {
 
         /* Added by AD Time: 12:20/10/3/26 */
         constexpr auto& readall = read_all;
-        
+
+        inline std::string read_all(const std::string& path, bool resolve_link = false) {
+            return resolve_link ? _AD_read_all(aux::parselink(path)) 
+                                : _AD_read_all(path);
+        }
+
         inline std::vector<std::string> read_lines(const std::string& path) {
             return _AD_read_lines(path);
+        }
+
+        inline std::string read_lines(const std::string& path, size_t line_number) {
+            return _AD_read_lines(path, line_number);
+        }
+
+        inline std::vector<std::string> read_lines(const std::string& path, 
+                                                   size_t start_line, 
+                                                   size_t end_line) {
+            return _AD_read_lines(path, start_line, end_line);
         }
         
         inline bool readable(const std::string& path) {
@@ -565,6 +604,10 @@ namespace AD {
     inline int system(const std::string& command) {
         return _ad_system(command);
     }
+
+    inline std::string system(const std::string& cmd, bool capture_output) {
+        return _ad_system(cmd, capture_output);
+    }
   #endif
     /* Added by AD Time: 12:20/10/3/26 */
     namespace run {
@@ -586,6 +629,79 @@ namespace AD {
         // namespace mk = ::mk;
         // namespace make = ::make;
     } /* namespace run */
+  #if defined(ad_internet) || defined(ad_https) || defined(ad_net) || defined(ad_http) || defined(ad_www)
+    namespace internet {
+        using request = http_request;
+        using response = http_response;
+
+        using progress_cb = progress_callback;
+        inline void init() { __global_init(); }
+        inline void cleanup() { global_cleanup(); }
+        // 便捷函数: 创建请求并设置
+        inline request create(const std::string& url) {
+            request req;
+            req.set_url(url);
+            return req;
+        }
+
+        namespace set {
+            inline auto url(const std::string& u) {
+                return [u](http_request& req) { req.set_url(u); };
+            }
+            inline auto timeout(long sec) {
+                return [sec](http_request& req) { req.set_timeout(sec); };
+            }
+            inline auto connect_timeout(long sec) {
+                return [sec](http_request& req) { req.set_connect_timeout(sec); };
+            }
+            inline auto follow_redirect(bool enable) {
+                return [enable](http_request& req) { req.set_follow_redirect(enable); };
+            }
+            inline auto verbose(bool enable) {
+                return [enable](http_request& req) { req.set_verbose(enable); };
+            }
+            inline auto output_file(const std::string& path) {
+                return [path](http_request& req) { req.set_output_file(path); };
+            }
+            inline auto progress(progress_callback cb) {
+                return [cb](http_request& req) { req.set_progress(cb); };
+            }
+            inline auto header(const std::string& h) {
+                return [h](http_request& req) { req.set_header(h); };
+            }
+            inline auto user_agent(const std::string& ua) {
+                return [ua](http_request& req) { req.set_user_agent(ua); };
+            }
+            inline auto authorization(const std::string& token) {
+                return [token](http_request& req) { req.set_authorization(token); };
+            }
+        } // namespace set
+    } // namespace internet
+    namespace net = internet;
+    namespace https = internet;
+    namespace http = internet;
+    namespace www = internet;
+  #endif
+
+  #ifdef ad_md5
+    namespace ssl {
+        namespace md5 {
+            constexpr auto& hex_to_bin = hex_to_binary;
+        } // namespace md5
+    } // namespace ssl
+    namespace openssl = ssl;
+  #endif
+
+  #ifdef ad_json
+    namespace json {
+        namespace make {
+            constexpr auto& object = make_object;
+            constexpr auto& array =     make_array;
+        } // namespace make
+        namespace mk = make;
+    } // namespace json
+  #endif
+// }
 } /* namespace AD */
 
 namespace ad = AD;

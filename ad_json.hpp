@@ -30,81 +30,108 @@
  *  This Agreement is governed by and construed in accordance with the laws of the People's Republic of China (without regard to conflict of law principles).
  */
 /*
- * adlibcxx-makeupforit.hpp
- * AD‘s C++ private standard library
- * Created by AD on 10/3/26
+ * ad_json.hpp
+ * JSON wrapper for Boost.JSON
+ * Created by AD on 2026-04-09
  * Copyright (c) 2025-2026 AD All rights reserved.
  */
-/*
- * ~~~ the undisclosed expansion test function of the ad dev library ~~~
- * this is the complete library of the AD library (extra library)
-**/
 
-# ifndef AD_LIBCXX_MAKEUPFORIT_HPP
-# define AD_LIBCXX_MAKEUPFORIT_HPP
+#ifndef _AD_JSON_HPP_
+#define _AD_JSON_HPP_
 
+#include <boost/json.hpp>
 #include <string>
+#include <optional>
 #include <vector>
-#include <filesystem>
+#include <map>
 #include <fstream>
-#include <memory>
-#include <iostream>
-#include <cstring>
+#include <sstream>
+#include "AD_output.hpp"
 
-# include <limits.h>
+namespace AD::json {
 
-#include "fix_std.hpp"
+namespace json = boost::json;
 
-#include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/wait.h>
+// 類型別名
+using value = json::value;
+using object = json::object;
+using array = json::array;
+using string = json::string;
+// fix: boost::json 在新版本中没有 number 类型，使用 value 代替
+// using number = json::number;
 
+// 解析 JSON
+inline json::value parse(const std::string& str) {
+    try {
+        return json::parse(str);
+    } catch (const std::exception& e) {
+        ad::cerr << "[JSON Error] Parse failed: " << e.what() << ad::endl;
+        return json::value();
+    }
+}
 
-namespace AD {
-    namespace user {
-        // get user uid
-        inline uid_t current_uid() { return getuid(); }
+inline json::value parse_file(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        ad::cerr << "[JSON Error] Cannot open file: " << path << ad::endl;
+        return json::value();
+    }
+    std::stringstream ss;
+    ss << file.rdbuf();
+    return parse(ss.str());
+}
 
-        int get_user_uid() { return current_uid(); }
+// 序列化 JSON
+inline std::string serialize(const json::value& v, bool pretty = false) {
+    if (pretty) {
+        // fix: 明确使用 serialize_options
+        return json::serialize(v, json::serialize_options{});
+    }
+    return json::serialize(v);
+}
 
-        constexpr auto& getuseruid = get_user_uid;
-    } /* namespace user */
+inline bool save_file(const std::string& path, const json::value& v, bool pretty = false) {
+    std::ofstream file(path);
+    if (!file.is_open()) {
+        ad::cerr << "[JSON Error] Cannot write to file: " << path << ad::endl;
+        return false;
+    }
+    file << serialize(v, pretty);
+    return true;
+}
 
-    // aux::ad_exist and is_dir and is_file
-    // return 0, it exists
-    // return 1, it doesn't exist
-    namespace aux {
-        int exist(const char *path) {
-            struct stat st;
-            return (stat(path, &st) != 0); /* 0 if exists, 1 if not exists */
+// 便捷構造
+inline json::object make_object() { return json::object(); }
+
+inline json::array make_array() { return json::array(); }
+
+// 輔助函式: 檢查 key 是否存在
+inline bool has_key(const json::object& obj, const std::string& key) { return obj.contains(key); }
+
+// 輔助函式: 安全獲取值(帶默認值)
+template<typename T>
+inline T get_or(const json::object& obj, const std::string& key, const T& default_value) {
+    if (auto it = obj.find(key); it != obj.end()) {
+        try {
+            return json::value_to<T>(it->value());
+        } catch (...) {
+            return default_value;
         }
+    }
+    return default_value;
+}
 
-        int is_dir(const char *path) {
-            struct stat st;
-            if (stat(path, &st) != 0) { return 1; /* doesn't exist or error */ }
-            return (S_ISDIR(st.st_mode) ? 0 : 1);  /* 0 if is directory, 1 if not */
-        }
+// 輔助函式: 將 JSON 轉換為字符串
+inline std::string to_string(const json::value& v) {
+    // fix: 明确指定参数，避免与标准库函数冲突
+    return json::serialize(v);
+}
 
-        int is_file(const char *path) {
-            struct stat st;
-            if (stat(path, &st) != 0) { return 1; /* doesn't exist or error */ }
-            return (S_ISREG(st.st_mode) ? 0 : 1);  // 0 if is file, 1 if not
-        }
+// 輔助函式: 從字符串構造
+inline json::value from_string(const std::string& str) {
+    return parse(str);
+}
 
-        constexpr auto& path_exist = exist;
+} // namespace AD::json
 
-        std::string resolve_path(const std::string& path) {
-            char resolved_path[PATH_MAX];
-            if (realpath(path.c_str(), resolved_path) != nullptr) {
-                return std::string(resolved_path);
-            }
-            return path;  // 解析失敗返回原路徑
-        }
-        constexpr auto& parselink = resolve_path;
-    } /* namespace aux */
-
-    namespace auxiliary = aux;
-} /* namespace AD */
-#endif /* AD_LIBCXX_MAKEUPFORIT_HPP */
+#endif

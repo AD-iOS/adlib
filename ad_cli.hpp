@@ -79,7 +79,7 @@ namespace AD {
             bool operator==(int n) const { return m_argc == n; }
             bool operator<(int n) const { return m_argc < n; }
             bool operator>(int n) const { return m_argc > n; }
-            // 實現 == 操作符（用於匹配選項）
+            // 實現 == 操作符(用於匹配選項)
             bool operator==(const char* opt) const {
                 for (size_t i = 1; i < m_args.size(); i++) {
                     if (m_args[i] == opt) {

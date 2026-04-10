@@ -1,0 +1,12 @@
+#! /bin/sh -
+
+main() {
+    if [ ! -n "$2" ]; then
+        printf "%s\n" "there is no document"; exit 1;
+    fi
+
+    local spaces=$(printf "%${1:-8}s" '')
+    sed -i "s/^/$spaces/" "${2}"
+}
+
+main $@

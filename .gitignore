@@ -14,3 +14,9 @@ c++/bits
 c++/ADbridge
 c++/Swift
 test/obj
+test/libs/*.dylib
+test/libs/*.so
+test/libs/Terminal
+test/libs/libad.so.1
+test/libs/test
+oc-update

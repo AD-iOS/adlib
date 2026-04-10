@@ -48,6 +48,8 @@
 #include <sys/wait.h>
 #include <iostream>
 #include <unistd.h>
+#include <cstring>
+#include <vector>
 
 inline int ad_system_impl(const std::string& command, const char* shell_path, const char* shell_name);
 
@@ -57,6 +59,7 @@ inline int ad_dash_system(const std::string& command);
 inline int ad_fish_system(const std::string& command);
 /* Added by AD Time: 00:03/22/1/26 */
 inline int _ad_system(const std::string& command);
+inline std::string _ad_system(const std::string& cmd, bool captrue_output);
 inline int ad_system(const std::string& command);
 inline int system(const std::string& command);
 
@@ -214,6 +217,86 @@ inline int _ad_system(const std::string& command) {
 }
 
 inline int ad_system(const std::string& command) { return _ad_system(command); }
+
+inline std::string _ad_system(const std::string& cmd, bool capture_output) {
+    if (!capture_output) {
+        _ad_system(cmd);
+        return "";
+    }
+
+    int stdout_pipe[2];
+    int stderr_pipe[2];
+
+    if (pipe(stdout_pipe) == -1 || pipe(stderr_pipe) == -1) {
+        return "unknown";
+    }
+
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        close(stdout_pipe[0]); close(stdout_pipe[1]);
+        close(stderr_pipe[0]); close(stderr_pipe[1]);
+        return "unknown";
+    }
+
+    if (pid == 0) {
+        close(stdout_pipe[0]);
+        close(stderr_pipe[0]);
+        dup2(stdout_pipe[1], STDOUT_FILENO);
+        dup2(stderr_pipe[1], STDERR_FILENO);
+        close(stdout_pipe[1]);
+        close(stderr_pipe[1]);
+        // 尋找 bash 路徑並執行
+        const char* possible_paths[] = {
+            /* jailbroken */
+            "/var/jb/usr/bin/bash",
+            "/var/jb/bin/bash",
+            "/var/jb/usr/local/bin/bash",
+            /* system */
+            "/bin/bash",
+            "/usr/bin/bash",
+            "/usr/local/bin/bash",
+            NULL
+        };
+
+        for (int i = 0; possible_paths[i] != NULL; i++) {
+            if (access(possible_paths[i], F_OK) == 0) {
+                execl(possible_paths[i], "bash", "-c", cmd.c_str(), (char*)NULL);
+                _exit(127);
+            }
+        }
+
+        execl("/bin/sh", "sh", "-c", cmd.c_str(), (char*)NULL);
+        _exit(127);
+    }
+
+    close(stdout_pipe[1]);
+    close(stderr_pipe[1]);
+    std::string result;
+    char buffer[4096];
+    ssize_t count;
+
+    while ((count = read(stdout_pipe[0], buffer, sizeof(buffer) - 1)) > 0) {
+        buffer[count] = '\0';
+        result += buffer;
+    }
+
+    while ((count = read(stderr_pipe[0], buffer, sizeof(buffer) - 1)) > 0) {
+        buffer[count] = '\0';
+        result += buffer;
+    }
+
+    close(stdout_pipe[0]);
+    close(stderr_pipe[0]);
+    int status;
+    waitpid(pid, &status, 0);
+
+    while (!result.empty() && (result.back() == '\n' || result.back() == '\r')) {
+        result.pop_back();
+    }
+
+    return result.empty() ? "unknown" : result;
+}
 
 #endif
 
